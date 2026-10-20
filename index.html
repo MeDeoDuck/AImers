@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AImers — AI 개념 92</title>
+<meta name="description" content="AI 면접 개념 92개 암기 퀴즈">
+<meta name="theme-color" content="#F7F7F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0F" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AI 92">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<style>
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo",system-ui,sans-serif;
+  --bg:#F7F7F8; --surface:#FFF; --surface-2:#F1F1F4;
+  --border:#E3E3E8; --border-strong:#C9C9D2;
+  --text:#15151A; --text-2:#5C5C68; --text-3:#8E8E9A;
+  --accent:#4F46E5; --accent-weak:#EEF0FF; --on-accent:#FFF;
+  --ok:#047857; --ok-bg:#ECFDF5; --ok-line:#6EE7B7;
+  --no:#B91C1C; --no-bg:#FEF2F2; --no-line:#FCA5A5;
+  --near:#B45309; --near-bg:#FFFBEB; --near-line:#FCD34D;
+  --shadow-1:0 1px 2px rgb(16 16 24/.06),0 4px 12px rgb(16 16 24/.05);
+  --gutter:16px; --r-chip:10px; --r-card:14px; --r-pill:999px;
+  --e-out:cubic-bezier(.2,.8,.3,1); --e-ios:cubic-bezier(.32,.72,0,1);
+  --t-fast:140ms; --t-base:220ms;
+  --kb:0px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0B0B0F; --surface:#16161C; --surface-2:#1E1E26;
+  --border:#2A2A34; --border-strong:#3A3A47;
+  --text:#F2F2F5; --text-2:#A0A0AE; --text-3:#71717F;
+  --accent:#8B83FF; --accent-weak:#1E1B3A; --on-accent:#0B0B0F;
+  --ok:#34D399; --ok-bg:#0E2A20; --ok-line:#117A55;
+  --no:#FF7A7A; --no-bg:#2E1515; --no-line:#8C2F2F;
+  --near:#FBBF24; --near-bg:#2A2008; --near-line:#92700C;
+  --shadow-1:none;
+}}
+:root[data-theme=dark]{
+  --bg:#0B0B0F; --surface:#16161C; --surface-2:#1E1E26;
+  --border:#2A2A34; --border-strong:#3A3A47;
+  --text:#F2F2F5; --text-2:#A0A0AE; --text-3:#71717F;
+  --accent:#8B83FF; --accent-weak:#1E1B3A; --on-accent:#0B0B0F;
+  --ok:#34D399; --ok-bg:#0E2A20; --ok-line:#117A55;
+  --no:#FF7A7A; --no-bg:#2E1515; --no-line:#8C2F2F;
+  --near:#FBBF24; --near-bg:#2A2008; --near-line:#92700C;
+  --shadow-1:none;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+:lang(ko){line-height:1.62}
+button,input{font-family:inherit;color:inherit}
+button{border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ── 셸 ── */
+.screen{
+  position:fixed;inset:0;height:100vh;height:100svh;
+  display:none;grid-template-rows:auto 1fr auto;
+}
+.screen.on{display:grid}
+.scroll{overflow-y:auto;overscroll-behavior:contain;min-height:0;
+  padding:0 var(--gutter);contain:layout paint}
+.pad-top{padding-top:env(safe-area-inset-top)}
+
+/* ── 헤더 ── */
+.hdr{
+  display:flex;align-items:center;gap:8px;height:44px;
+  padding:env(safe-area-inset-top) var(--gutter) 0;
+  box-sizing:content-box;
+}
+.hdr h1{font:700 17px/1.2 var(--font);margin:0;flex:1;letter-spacing:-.01em}
+.iconbtn{
+  width:44px;height:44px;display:grid;place-items:center;
+  font-size:17px;color:var(--text-2);border-radius:var(--r-pill);
+  margin-inline:-10px;
+}
+.iconbtn:active{background:var(--surface-2)}
+
+/* ── 하단 바 ── */
+.bar{
+  padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  background:var(--surface);border-top:1px solid var(--border);
+  transform:translateY(calc(-1 * var(--kb)));
+  transition:transform var(--t-fast) linear;
+}
+.btn{
+  display:block;width:100%;min-height:52px;border-radius:var(--r-card);
+  background:var(--accent);color:var(--on-accent);
+  font:600 16px/1.2 var(--font);
+}
+.btn:disabled{background:var(--surface-2);color:var(--text-3)}
+.btn:not(:disabled):active{transform:scale(.985);filter:brightness(.95)}
+.btn.ghost{background:var(--surface-2);color:var(--text);min-height:44px;font-weight:500}
+.btn.ghost:active{background:var(--border)}
+.btn+.btn{margin-top:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row2 .btn+.btn{margin-top:0}
+
+/* ── 로비 ── */
+.lede{padding:4px 0 18px}
+.lede h2{font:700 24px/1.25 var(--font);margin:0 0 4px;letter-spacing:-.02em}
+.lede p{margin:0;font-size:13px;color:var(--text-2)}
+.cap{font:600 11px/1.3 var(--font);letter-spacing:.04em;text-transform:uppercase;
+  color:var(--text-3);margin:20px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  min-height:36px;padding:7px 13px;border-radius:var(--r-chip);
+  background:var(--surface);border:1px solid var(--border);
+  font:500 14px/1.3 var(--font);color:var(--text-2);
+  display:inline-flex;align-items:center;gap:6px;position:relative;
+}
+.chip::after{content:"";position:absolute;inset:-4px}
+.chip[aria-pressed=true]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent);font-weight:600}
+.chip:active{transform:scale(.97)}
+.chip small{font-size:11px;opacity:.65;font-variant-numeric:tabular-nums}
+
+.modecard{
+  width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-1);
+  display:block;
+}
+.modecard[aria-pressed=true]{border-color:var(--accent);background:var(--accent-weak)}
+.modecard:active{transform:scale(.99)}
+.modecard .n{font:700 11px/1 var(--font);color:var(--accent);letter-spacing:.06em}
+.modecard .t{font:600 17px/1.3 var(--font);margin:5px 0 2px;letter-spacing:-.01em}
+.modecard .d{font-size:13px;color:var(--text-2);line-height:1.45}
+.subchips{margin-top:11px;display:none;gap:8px;flex-wrap:wrap}
+.modecard[aria-pressed=true] .subchips{display:flex}
+
+/* ── 진행 ── */
+.prog{height:3px;background:var(--border);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);
+  transform-origin:0 50%;transform:scaleX(0);transition:transform var(--t-base) var(--e-out)}
+.qhdr{display:flex;align-items:center;gap:10px;height:44px;padding:0 var(--gutter)}
+.qhdr .mid{flex:1;text-align:center;font:500 13px/1 var(--font);color:var(--text-2)}
+.tally{display:flex;gap:9px;font:600 13px/1 var(--font)}
+.tally span{display:inline-flex;align-items:center;gap:3px}
+.tally .o{color:var(--ok)} .tally .x{color:var(--no)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* ── 문제 ── */
+.stem{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:14px;margin:12px 0;box-shadow:var(--shadow-1);
+}
+.stem .cap{margin:0 0 7px}
+.stem-en{font:400 17px/1.47 var(--font);letter-spacing:-.01em;
+  max-height:175px;overflow-y:auto;overscroll-behavior:contain}
+.stem-term{font:700 24px/1.25 var(--font);letter-spacing:-.02em;word-break:break-word}
+.stem-sub{font-size:13px;color:var(--text-2);margin-top:3px}
+.stem-q{font:600 19px/1.45 var(--font);letter-spacing:-.01em;word-break:keep-all}
+.stem-ko{font-size:15px;color:var(--text-2);margin-top:10px;
+  padding-top:10px;border-top:1px solid var(--border)}
+.stem-ko[hidden]{display:none}
+.kbd-tight .stem-en{max-height:76px}
+
+/* ── 보기 ── */
+.opts{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
+.opt{
+  position:relative;width:100%;text-align:left;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:14px;padding-left:17px;min-height:56px;
+  display:flex;align-items:center;gap:10px;
+  transition:background-color var(--t-fast) var(--e-out),border-color var(--t-fast) var(--e-out);
+}
+.opt::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;
+  border-radius:0 3px 3px 0;background:transparent;transition:background-color var(--t-fast)}
+.opt:active{transform:scale(.985)}
+.opt .txt{flex:1;min-width:0}
+.opt .mark{font-size:17px;font-weight:700;flex:none}
+.opt-term{font:600 20px/1.25 var(--font);letter-spacing:-.01em;word-break:break-word}
+.opt-def{
+  font:400 14px/20px var(--font);
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--clamp,4);
+  overflow:hidden;text-wrap:pretty;
+}
+.opt[aria-checked=true]{background:var(--accent-weak);border-color:var(--accent)}
+.opt[aria-checked=true]::before{background:var(--accent)}
+.opt[aria-checked=true] .opt-def,
+.opt.peek .opt-def{-webkit-line-clamp:unset}
+/* 잘린 보기: 아래쪽 페이드 + '꾹 눌러 더보기' 안내 */
+.opt.clip .txt{position:relative}
+.opt.clip .txt::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:22px;pointer-events:none;
+  background:linear-gradient(transparent,var(--surface));
+}
+.opt.clip.peek .txt::after{display:none}
+.more{
+  display:none;font:600 11px/1 var(--font);color:var(--text-2);opacity:.75;
+  margin-top:8px;letter-spacing:.02em;
+}
+.opt.clip .more{display:block}
+.opt.clip.peek .more{color:var(--accent)}
+.opt.peeking{background:var(--surface-2)}
+.opt.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+.opt.ok::before{background:var(--ok)}
+.opt.ok .mark{color:var(--ok)}
+.opt.no{background:var(--no-bg);border-color:var(--no-line)}
+.opt.no::before{background:var(--no)}
+.opt.no .mark{color:var(--no)}
+.opt.reveal{border-color:var(--ok-line);border-style:dashed}
+.opt.reveal .mark{color:var(--ok)}
+.opt.dim{opacity:.38}
+.opts.done .opt{pointer-events:none}
+
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}
+  40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+.opt.no{animation:shake 220ms var(--e-out)}
+.opt.ok{animation:pop 260ms var(--e-ios)}
+@media (prefers-reduced-motion:reduce){.opt.no,.opt.ok{animation:none}}
+
+/* ── O/X ── */
+.ox{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ox button{
+  min-height:72px;border-radius:var(--r-card);background:var(--surface);
+  border:1px solid var(--border-strong);font:700 22px/1.2 var(--font);
+  display:grid;place-items:center;gap:2px;box-shadow:var(--shadow-1);
+}
+.ox button small{font:500 12px/1 var(--font);color:var(--text-2)}
+.ox button:active{transform:scale(.97)}
+.ox button.ok{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+.ox button.no{background:var(--no-bg);border-color:var(--no-line);color:var(--no)}
+
+/* ── 주관식 ── */
+.answer{display:flex;flex-direction:column;gap:10px;padding-bottom:12px}
+.answer input{
+  width:100%;min-height:56px;padding:0 15px;
+  font-size:17px;              /* 16px 미만이면 iOS 가 포커스 시 확대한다 */
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:var(--r-card);outline:none;
+}
+.answer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.verdict{border-radius:var(--r-card);padding:13px 14px;font-size:14px;line-height:1.5}
+.verdict.ok{background:var(--ok-bg);border:1px solid var(--ok-line);color:var(--ok)}
+.verdict.no{background:var(--no-bg);border:1px solid var(--no-line);color:var(--no)}
+.verdict.near{background:var(--near-bg);border:1px solid var(--near-line);color:var(--near)}
+.verdict b{font-weight:700}
+.verdict .mine{text-decoration:line-through;opacity:.7}
+
+/* ── 해설 ── */
+.explain{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:14px;margin-bottom:12px;
+}
+.explain h3{font:700 20px/1.25 var(--font);margin:0 0 2px;letter-spacing:-.01em;word-break:break-word}
+.explain .ko{font-size:13px;color:var(--text-2);margin-bottom:10px}
+.explain p{margin:8px 0 0;font-size:14px;line-height:1.55}
+.explain p.k{color:var(--text-2);font-size:14px}
+.explain .sep{height:1px;background:var(--border);margin:11px 0}
+.math{background:var(--surface-2);border-radius:10px;padding:9px 11px;margin-top:8px;
+  overflow-x:auto;font:400 12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--text-2);white-space:pre-wrap;word-break:break-word}
+
+/* ── 단어장 ── */
+.search{position:relative;margin:4px 0 10px}
+.search input{
+  width:100%;height:44px;padding:0 38px 0 38px;font-size:16px;
+  background:var(--surface-2);border:1px solid transparent;border-radius:var(--r-pill);outline:none;
+}
+.search input:focus{border-color:var(--accent);background:var(--surface)}
+.search .ic{position:absolute;left:13px;top:12px;color:var(--text-3);font-size:15px;pointer-events:none}
+.search .clr{position:absolute;right:4px;top:0;width:40px;height:44px;color:var(--text-3);font-size:17px}
+.sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:4px}
+.vrow{
+  width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:12px 14px;margin-bottom:8px;display:block;
+}
+.vrow:active{background:var(--surface-2)}
+.vrow .top{display:flex;align-items:flex-start;gap:8px}
+.vrow .t{font:600 17px/1.3 var(--font);flex:1;letter-spacing:-.01em;word-break:break-word}
+.vrow .k{font-size:13px;color:var(--text-2);margin-top:2px;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+.badge{font:600 11px/1 var(--font);padding:4px 7px;border-radius:var(--r-pill);
+  background:var(--surface-2);color:var(--text-3);flex:none;font-variant-numeric:tabular-nums}
+.badge.w{background:var(--no-bg);color:var(--no)}
+.badge.g{background:var(--ok-bg);color:var(--ok)}
+.vbody{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--border)}
+.vrow.open .vbody{display:block}
+.vbody p{margin:0 0 7px;font-size:14px;line-height:1.55}
+.vbody p.k{color:var(--text-2)}
+.vbody .sep{height:1px;background:var(--border);margin:9px 0}
+mark{background:var(--accent-weak);color:inherit;border-radius:3px;padding:0 2px}
+.sechead{font:600 11px/1.3 var(--font);letter-spacing:.04em;text-transform:uppercase;
+  color:var(--text-3);margin:16px 0 8px;display:flex;justify-content:space-between}
+.empty{text-align:center;color:var(--text-3);font-size:14px;padding:48px 0}
+
+/* ── 결과 ── */
+.result{text-align:center;padding:24px 0 8px}
+.result .sc{font:700 34px/1.1 var(--font);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.result .pc{font-size:13px;color:var(--text-2);margin-top:5px}
+.statrow{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:13px}
+.statrow .lb{width:42px;color:var(--text-2);flex:none}
+.statrow .tr{flex:1;height:6px;background:var(--surface-2);border-radius:var(--r-pill);overflow:hidden}
+.statrow .tr i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill)}
+.statrow .vl{width:48px;text-align:right;color:var(--text-2);font-variant-numeric:tabular-nums;flex:none}
+.note{font-size:12px;color:var(--text-3);line-height:1.5;padding:14px 0 4px}
+</style>
+</head>
+<body>
+
+<!-- ══ 로비 ══ -->
+<section id="s-lobby" class="screen on">
+  <header class="hdr">
+    <h1>AImers</h1>
+    <button class="iconbtn" id="themeBtn" aria-label="테마 전환">◐</button>
+  </header>
+  <div class="scroll">
+    <div class="lede">
+      <h2>AI 개념 92</h2>
+      <p id="lobbySub">면접 영어 개념 암기 · 선형대수 13 · ML 49 · 통계 30</p>
+    </div>
+
+    <div class="cap">모드</div>
+    <div class="modecard" role="button" tabindex="0" data-mode="1" aria-pressed="true">
+      <div class="n">MODE 1</div>
+      <div class="t">뜻 → 단어</div>
+      <div class="d">영어 정의를 읽고 용어를 맞힌다</div>
+      <div class="subchips" id="m1sub">
+        <button class="chip" data-sub="mc" aria-pressed="true">객관식</button>
+        <button class="chip" data-sub="sa" aria-pressed="false">주관식</button>
+        <button class="chip" data-sub="mix" aria-pressed="false">섞기</button>
+      </div>
+    </div>
+    <div class="modecard" role="button" tabindex="0" data-mode="2" aria-pressed="false">
+      <div class="n">MODE 2</div>
+      <div class="t">단어 → 뜻</div>
+      <div class="d">용어를 보고 맞는 영어 정의를 고른다</div>
+    </div>
+    <div class="modecard" role="button" tabindex="0" data-mode="3" aria-pressed="false">
+      <div class="n">MODE 3</div>
+      <div class="t">O / X 매칭</div>
+      <div class="d">짝이 맞는지 판정하고, 틀렸으면 올바른 뜻을 고른다</div>
+    </div>
+
+    <div class="cap">범위</div>
+    <div class="chips" id="scopeChips">
+      <button class="chip" data-sec="LA" aria-pressed="false">선형대수 <small>13</small></button>
+      <button class="chip" data-sec="ML" aria-pressed="false">머신러닝 <small>49</small></button>
+      <button class="chip" data-sec="ST" aria-pressed="false">통계 <small>30</small></button>
+    </div>
+    <div class="chips" id="filterChips" style="margin-top:8px">
+      <button class="chip" data-filter="wrong" aria-pressed="false">틀린 것만 <small id="cWrong">0</small></button>
+      <button class="chip" data-filter="unseen" aria-pressed="false">안 푼 것만 <small id="cUnseen">92</small></button>
+    </div>
+
+    <div class="cap">문항 수</div>
+    <div class="chips" id="lenChips">
+      <button class="chip" data-len="10" aria-pressed="false">10</button>
+      <button class="chip" data-len="15" aria-pressed="true">15</button>
+      <button class="chip" data-len="25" aria-pressed="false">25</button>
+      <button class="chip" data-len="0" aria-pressed="false">전체</button>
+    </div>
+
+    <p class="note" id="poolNote"></p>
+  </div>
+  <div class="bar">
+    <button class="btn" id="startBtn">시작</button>
+    <button class="btn ghost" id="vocabBtn">단어장 92개 훑어보기</button>
+  </div>
+</section>
+
+<!-- ══ 단어장 ══ -->
+<section id="s-vocab" class="screen">
+  <header class="hdr">
+    <button class="iconbtn" data-back="lobby" aria-label="뒤로">‹</button>
+    <h1>단어장</h1>
+    <span class="badge tnum" id="vCount">92</span>
+  </header>
+  <div class="scroll" id="vScroll">
+    <div class="sticky">
+      <div class="search">
+        <span class="ic">⌕</span>
+        <input id="vSearch" type="search" placeholder="용어 · 뜻 검색 (한글 가능)"
+               autocapitalize="none" autocorrect="off" spellcheck="false"
+               autocomplete="off" enterkeyhint="search">
+        <button class="clr" id="vClear" hidden aria-label="지우기">✕</button>
+      </div>
+      <div class="chips" id="vFilter" style="padding-bottom:10px">
+        <button class="chip" data-vf="all" aria-pressed="true">전체</button>
+        <button class="chip" data-vf="wrong" aria-pressed="false">틀린 것</button>
+        <button class="chip" data-vf="unseen" aria-pressed="false">안 푼 것</button>
+        <button class="chip" data-vf="LA" aria-pressed="false">선대</button>
+        <button class="chip" data-vf="ML" aria-pressed="false">ML</button>
+        <button class="chip" data-vf="ST" aria-pressed="false">통계</button>
+      </div>
+    </div>
+    <div id="vList"></div>
+    <div class="empty" id="vEmpty" hidden>결과 없음</div>
+    <div style="height:20px"></div>
+  </div>
+</section>
+
+<!-- ══ 퀴즈 ══ -->
+<section id="s-quiz" class="screen">
+  <div>
+    <div class="pad-top"></div>
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="qhdr">
+      <button class="iconbtn" id="quitBtn" aria-label="그만두기">✕</button>
+      <span class="mid tnum" id="qCount">1 / 15</span>
+      <span class="tally"><span class="o"><i class="dot"></i><b id="tO">0</b></span><span class="x"><i class="dot"></i><b id="tX">0</b></span></span>
+    </div>
+  </div>
+  <div class="scroll" id="qScroll"></div>
+  <div class="bar" id="qBar"></div>
+</section>
+
+<!-- ══ 결과 ══ -->
+<section id="s-result" class="screen">
+  <header class="hdr"><h1>결과</h1></header>
+  <div class="scroll" id="rScroll"></div>
+  <div class="bar" id="rBar"></div>
+</section>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
