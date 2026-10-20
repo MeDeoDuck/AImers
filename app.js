@@ -20,13 +20,21 @@ var store = (function () {
   };
 })();
 var KEY = 'aimers.v1';
+/* JSON.parse 는 성공해도 객체가 아닐 수 있다 ('5', '"x"', 'true', '[]').
+   strict mode 에서 원시값에 프로퍼티를 붙이면 던지고, 앱이 리스너도 못 붙인 채 먹통이 된다. */
+function obj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
 var DB = (function () {
-  try { return JSON.parse(store.get(KEY)) || {}; } catch (e) { return {}; }
+  try { return obj(JSON.parse(store.get(KEY))); } catch (e) { return {}; }
 })();
-DB.items = DB.items || {};
-DB.plays = DB.plays || 0;
-DB.cfg = DB.cfg || {};
-DB.aliases = DB.aliases || {};
+DB.items = obj(DB.items);
+DB.plays = typeof DB.plays === 'number' && isFinite(DB.plays) ? DB.plays : 0;
+DB.cfg = obj(DB.cfg);
+DB.aliases = obj(DB.aliases);
+Object.keys(DB.items).forEach(function (k) { if (!obj(DB.items[k]).seen) delete DB.items[k]; });
+Object.keys(DB.aliases).forEach(function (k) {
+  if (!Array.isArray(DB.aliases[k])) delete DB.aliases[k];
+  else DB.aliases[k] = DB.aliases[k].filter(function (s) { return typeof s === 'string' && s.length <= 80; });
+});
 function save() { try { store.set(KEY, JSON.stringify(DB)); } catch (e) {} }
 function rec(i) { return DB.items[i] || null; }
 
@@ -255,12 +263,18 @@ $('#vList').addEventListener('click', function (e) {
 
 /* ══════════ 퀴즈 ══════════ */
 var S = null;
+/* 세션 세대 번호. 지연 호출(모드3 2단계)이 다음 판을 덮어쓰지 않게 한다.
+   판을 버리고 새로 시작하면 옛 타이머가 살아 있다가 남의 화면을 그렸다. */
+var GEN = 0, m3Timer = null;
+function endSession() { GEN++; clearTimeout(m3Timer); m3Timer = null; S = null; }
+function alive(g) { return g === GEN && S !== null; }
 
 function startSession() {
   var p = pool();
   if (p.length < 4) return;
   var len = cfg.len === 0 ? p.length : Math.min(cfg.len, p.length);
   var q = deClump(p, len);
+  endSession();
   S = {
     queue: q, cur: 0, earned: 0, possible: 0, combo: 0, maxCombo: 0,
     ok: 0, no: 0, answers: [], retried: {}, retryCount: 0,
@@ -280,8 +294,9 @@ function hasClump(q) {
   return false;
 }
 function deClump(p, len) {
-  var q = E.buildQueue(p, len);
-  for (var n = 0; n < 40 && hasClump(q); n++) q = E.buildQueue(p, len);
+  var pick = function () { return E.weightedQueue(p, len, rec, DB.plays); };
+  var q = pick();
+  for (var n = 0; n < 40 && hasClump(q); n++) q = pick();
   return q;
 }
 
@@ -333,9 +348,21 @@ function explainHtml(x, extra) {
     '</div>';
 }
 
+/* 판정 직후 같은 자리에 '다음' 이 들어오면, 확인 버튼을 두 번 탭한 손가락이
+   그대로 다음 문제로 넘겨버린다. 해설을 못 보고 지나간다. 잠깐 입력을 막는다. */
+function armBar(ms) {
+  var bar = $('#qBar');
+  bar.style.pointerEvents = 'none';
+  bar.style.opacity = '.55';
+  setTimeout(function () {
+    bar.style.pointerEvents = '';
+    bar.style.opacity = '';
+  }, ms || 320);
+}
 function nextBar(label) {
   $('#qBar').innerHTML = '<button class="btn" id="nextBtn">' + (label || '다음') + '</button>';
   $('#nextBtn').addEventListener('click', advance);
+  armBar();
 }
 
 /* ── 모드1 객관식: 정의 → 용어 ── */
@@ -343,8 +370,10 @@ function renderM1mc(x) {
   /* 단어가 정답이면 부분문자열 오답(entropy ⊂ cross-entropy)이 오히려 좋은 오답이다 */
   var ids = E.shuffle(E.distractors(C, x, 3, { allowSubstrFoes: true, needMode: 1 }).concat([x.i]));
   $('#qScroll').innerHTML =
+    /* 문제문은 자르지 않는다. 모드2/3 보기와 달리 꾹 눌러 펼칠 장치가 없어서
+       '…' 로 끝나면 복구할 방법이 없다. 넘치면 카드 안에서 스크롤된다. */
     '<div class="stem"><div class="cap">정의</div>' +
-      '<div class="stem-en">' + esc(x.quizDef) + '</div>' +
+      '<div class="stem-en">' + esc(x.stemDef) + '</div>' +
       '<div class="stem-ko" id="koHint" hidden>' + esc(x.quizKo) + '</div></div>' +
     '<div class="opts" id="opts">' + ids.map(function (i) {
       return '<button class="opt" data-i="' + i + '"><span class="txt"><span class="opt-term">' +
@@ -488,7 +517,10 @@ function renderM1sa(x) {
 }
 
 function gradeSa(x, raw) {
-  if (!raw.trim()) return;
+  if (!raw.trim()) {
+    $('#saOut').innerHTML = '<div class="verdict near">답을 입력해 주세요.</div>';
+    return;
+  }
   if (/[가-힣]/.test(raw)) {
     $('#saOut').innerHTML = '<div class="verdict near">영어로 입력해 주세요.</div>';
     return;
@@ -514,6 +546,7 @@ function gradeSa(x, raw) {
     $('#qScroll').insertAdjacentHTML('beforeend', explainHtml(x));
     $('#qBar').innerHTML = '<div class="row2"><button class="btn ghost" id="pardon">이건 맞은 걸로</button>' +
       '<button class="btn" id="nextBtn">확인했다</button></div>';
+    armBar();
     $('#pardon').addEventListener('click', function () {
       (DB.aliases[x.i] = DB.aliases[x.i] || []).push(raw.trim());
       undoWrong(x);
@@ -569,7 +602,11 @@ function judgeOx(x, saidTrue) {
   }
   /* 가짜 쌍 — O 를 눌렀어도 반드시 2단계를 태운다. 못 알아본 사람일수록 정답을 봐야 한다. */
   S.m3.stage1 = right;
-  setTimeout(function () { renderM3b(x); }, right ? 420 : 700);
+  var g = GEN;
+  clearTimeout(m3Timer);
+  m3Timer = setTimeout(function () {
+    if (alive(g) && S.m3 && S.m3.decoy) renderM3b(x);
+  }, right ? 420 : 700);
 }
 
 function renderM3b(x) {
@@ -648,7 +685,9 @@ function advance() {
 }
 
 $('#quitBtn').addEventListener('click', function () {
-  if (S && S.cur > 0 && !confirm('그만두면 이 판은 기록되지 않습니다.')) return;
+  /* 문제별 전적은 이미 저장돼 있다. 버려지는 건 이 판의 점수뿐 — 그대로 말한다. */
+  if (S && S.cur > 0 && !confirm('이 판의 점수는 버립니다. 지금까지 푼 문제의 전적은 남습니다.')) return;
+  endSession();
   show('lobby'); paintLobby();
 });
 

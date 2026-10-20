@@ -145,6 +145,31 @@
     return shuffle(pool.map(function (x) { return x.i; })).slice(0, Math.min(len, pool.length));
   }
 
+  /* 어떤 문제를 뽑을지에만 복습 가중치를 건다. 뽑은 뒤 순서는 그대로 셔플이다.
+     틀린 것·복습 시점이 된 것·아직 안 본 것이 먼저 올라온다. */
+  function weight(rec, plays) {
+    if (!rec) return 1.5;                                   // 안 본 것
+    var w = 1 + 2 * (rec.wrong || 0) - Math.min(rec.streak || 0, 2);
+    if (rec.nextDuePlay != null && rec.nextDuePlay <= plays) w *= 2;
+    if (rec.box >= 5) w *= 0.25;                            // 졸업한 것은 거의 안 낸다
+    return Math.max(0.2, w);
+  }
+
+  function weightedQueue(pool, len, recOf, plays) {
+    var cand = pool.slice(), out = [];
+    var ws = cand.map(function (x) { return weight(recOf(x.i), plays); });
+    var n = Math.min(len, cand.length);
+    for (var k = 0; k < n; k++) {
+      var tot = 0, j;
+      for (j = 0; j < ws.length; j++) tot += ws[j];
+      var r = Math.random() * tot, acc = 0, hit = ws.length - 1;
+      for (j = 0; j < ws.length; j++) { acc += ws[j]; if (r <= acc) { hit = j; break; } }
+      out.push(cand[hit].i);
+      cand.splice(hit, 1); ws.splice(hit, 1);
+    }
+    return shuffle(out);
+  }
+
   /* 틀린 항목을 같은 판 3문제 뒤에 모드를 바꿔 한 번 더.
      바로 다음에 내면 단기기억으로 맞히고, 안 내면 잊는다. 세션당 3개까지. */
   function scheduleRetry(queue, cursor, idx, inserted) {
@@ -158,6 +183,7 @@
     norm: norm, autoAliases: autoAliases, buildIndex: buildIndex, grade: grade,
     shuffle: shuffle, sample: sample, distractors: distractors,
     applyResult: applyResult, isGraduated: isGraduated,
-    buildQueue: buildQueue, scheduleRetry: scheduleRetry, GAP: GAP
+    buildQueue: buildQueue, weightedQueue: weightedQueue, weight: weight,
+    scheduleRetry: scheduleRetry, GAP: GAP
   };
 });
