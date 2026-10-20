@@ -548,7 +548,8 @@ function gradeSa(x, raw) {
       '<button class="btn" id="nextBtn">확인했다</button></div>';
     armBar();
     $('#pardon').addEventListener('click', function () {
-      (DB.aliases[x.i] = DB.aliases[x.i] || []).push(raw.trim());
+      var a = (DB.aliases[x.i] = DB.aliases[x.i] || []);
+      if (a.length < 12) a.push(raw.trim().slice(0, 80));   /* 영구 저장이라 상한을 둔다 */
       undoWrong(x);
       $('#saOut').innerHTML = '<div class="verdict ok"><b>정답 처리</b> — ' + esc(raw.trim()) +
         ' 을(를) ' + esc(x.term) + ' 의 별칭으로 기억합니다.</div>';
