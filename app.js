@@ -219,7 +219,7 @@ function paintVocab() {
       '<div class="vbody">' +
         x.defEn.map(function (d) { return '<p>' + hl(d, q) + '</p>'; }).join('') +
         '<div class="sep"></div>' +
-        x.defKo.map(function (d) { return '<p class="k">' + hl(d, q) + '</p>'; }).join('') +
+        x.defKo.filter(Boolean).map(function (d) { return '<p class="k">' + hl(d, q) + '</p>'; }).join('') +
         (x.extras || []).map(function (e) {
           return '<div class="math">' + esc(e.lines.join('\n')) + '</div>';
         }).join('') +
@@ -326,7 +326,10 @@ function explainHtml(x, extra) {
     '<div class="ko">' + esc(x.ko || '') + '</div>' +
     x.defEn.map(function (d) { return '<p>' + esc(d) + '</p>'; }).join('') +
     '<div class="sep"></div>' +
-    x.defKo.map(function (d) { return '<p class="k">' + esc(d) + '</p>'; }).join('') +
+    x.defKo.filter(Boolean).map(function (d) { return '<p class="k">' + esc(d) + '</p>'; }).join('') +
+    (x.extras || []).map(function (e) {
+      return '<div class="math">' + esc(e.lines.join('\n')) + '</div>';
+    }).join('') +
     '</div>';
 }
 
